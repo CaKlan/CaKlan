@@ -1,0 +1,122 @@
+.html{
+  height:100%;
+}
+.App{
+  
+  width:100%;
+  min-height:1000px;
+  height:100%;
+  background-color:rgb(235, 235, 235);
+}
+.container{
+  display:flex;
+  align-items: center;
+  justify-content: center;
+}
+.AddList{
+  background-color:rgb(138, 138, 138);
+  width:50px;
+  height:auto;
+  flex : 1;
+  cursor:pointer;
+  display:flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.NameTemplate{
+  
+  height:70px;
+  background-color:rgb(194, 164, 252);
+  display:flex;
+  
+  font-size:26px;
+  color : aliceblue;
+  align-items:center;
+  justify-content: center;
+  
+}
+
+.TodoTemplate{
+  margin-top:200px;
+  margin-bottom:200px;
+  display:flex;
+  width:500px;
+  height:auto;
+  min-height:500px;
+  background-color:aliceblue;
+  flex-direction:column;
+}
+
+.ToDoInsert{
+  background-color: red;
+  width:100%;
+  height:auto;
+  min-height:40px;
+  display:flex;
+}
+
+.TodoList{
+  width:100%;
+  flex: 1;
+}
+
+.ListItem{
+  height:70px;
+  display:flex;
+  align-items:center;
+  padding-left: 15px;
+
+}
+
+.text{
+  flex:0 0 auto;
+  width:400px;
+  height:100%;
+  display:flex;
+  align-items:center;
+  user-select: none;
+}
+
+.modify{
+  width:50px;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content: center;
+  cursor:pointer;
+}
+
+.delete{
+  width:50px;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content: center;
+  cursor:pointer;
+  
+}
+
+img{
+  width:20px;
+  height:20px;
+  object-fit:cover;
+}
+
+.ToDoText{
+  background-color:rgb(83, 83, 83);
+  width:450px;
+  resize:none;
+  border:none;
+  outline:none;
+  display:flex;
+  color:white;
+  font-size:16px;
+  padding-left: 5px;
+}
+
+.listText{
+  border:none;
+  /*outline:none;*/
+  outline: 0px 0px 1px 0px solid gray;
+}
