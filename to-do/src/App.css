@@ -116,5 +116,12 @@ img{
 .listText{
   border:none;
   /*outline:none;*/
-  outline: 0px 0px 1px 0px solid gray;
+  outline:none;
+}
+
+.listText_lt{
+  border:none;
+  outline:none;
+  text-decoration: line-through;
+  color:gray;
 }

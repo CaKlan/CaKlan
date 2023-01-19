@@ -14,14 +14,12 @@ function ListItem(props){
 
   const checkHandler = () => { //체크박스 체크되면 text 취소선, 회색 아니면 그대로
     if (checkBox.current.checked){
-      textArea.current.setAttribute("style", "text-decoration:line-through;color:gray");
       setChecked(true);
       let temp = [...props.toDoLists];
       temp[props.idx].checked = true;
       props.setToDoLists(temp);
       localStorage.setItem('userToDoList', JSON.stringify(temp));
     }else{
-      textArea.current.setAttribute("style", "text-decoration:none");
       setChecked(false);
       let temp = [...props.toDoLists];
       temp[props.idx].checked = false;
@@ -65,6 +63,7 @@ function ListItem(props){
   useEffect(()=>{
     setContext(props.text); // props.text를 업데이트 해줌.
     setChecked(props.checked); //props.checked update
+    
     if(!firstUpdate){
       checkHandler();
       setFirstUpdate(true);
@@ -75,8 +74,8 @@ function ListItem(props){
   return (
     <div className="ListItem">
       <div className="text" onDoubleClick={doubleClick}>
-        <input type="checkbox" onChange={checkHandler}  checked={checked} ref={checkBox}/>
-        <input className="listText" type="textarea" 
+        <input type={"checkbox"} onChange={checkHandler}  checked={checked} ref={checkBox}/>
+        <input className={checked ? "listText_lt" : "listText"} type="textarea"
           value={context} ref={textArea} 
           onBlur={blurFunc}
           onChange={()=>{setContext(textArea.current.value);}}
