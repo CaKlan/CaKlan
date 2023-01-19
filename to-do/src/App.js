@@ -5,15 +5,28 @@ import React, {useState, useRef, useEffect} from 'react';
 function ListItem(props){
 
   let textArea = useRef(); //input type textarea의 ref
+  let checkBox = useRef();
+
   let [context, setContext] = useState(props.text);  //textarea에 들어갈 문자열
   let [isDisable, setIsDisable] = useState(false); //수정기능 활성화 여부에 따라 textarea 활성/비활성 제어 state.
+  let [checked, setChecked] = useState(props.checked);
+  let [firstUpdate, setFirstUpdate] = useState(false);
 
-  
-  const checkHandler = e => { //체크박스 체크되면 text 취소선, 회색 아니면 그대로
-    if (e.target.checked){
+  const checkHandler = () => { //체크박스 체크되면 text 취소선, 회색 아니면 그대로
+    if (checkBox.current.checked){
       textArea.current.setAttribute("style", "text-decoration:line-through;color:gray");
+      setChecked(true);
+      let temp = [...props.toDoLists];
+      temp[props.idx].checked = true;
+      props.setToDoLists(temp);
+      localStorage.setItem('userToDoList', JSON.stringify(temp));
     }else{
       textArea.current.setAttribute("style", "text-decoration:none");
+      setChecked(false);
+      let temp = [...props.toDoLists];
+      temp[props.idx].checked = false;
+      props.setToDoLists(temp);
+      localStorage.setItem('userToDoList', JSON.stringify(temp));
     }
   }
 
@@ -25,7 +38,7 @@ function ListItem(props){
   const blurFunc = () => { //수정 하다가 다른 곳 클릭했을때 (포커스를 벗어났을 때) 메세지 저장
     let temp = [...props.toDoLists];
     temp[props.idx].msg = context;
-    console.log(temp);
+
     props.setToDoLists(temp);
 
     //console.log(props.toDoLists);
@@ -43,7 +56,7 @@ function ListItem(props){
 
   const doubleClick = (e) => { //double클릭시, 수정 기능 활성화
     if (e.target.type !== "checkbox"){
-      console.log(e.target);
+
       modifyHandler();
     }
     
@@ -51,13 +64,18 @@ function ListItem(props){
 
   useEffect(()=>{
     setContext(props.text); // props.text를 업데이트 해줌.
-  })
+    setChecked(props.checked); //props.checked update
+    if(!firstUpdate){
+      checkHandler();
+      setFirstUpdate(true);
+    }
+    
+  });
 
-  
   return (
     <div className="ListItem">
       <div className="text" onDoubleClick={doubleClick}>
-        <input type="checkbox" onChange={checkHandler}/>
+        <input type="checkbox" onChange={checkHandler}  checked={checked} ref={checkBox}/>
         <input className="listText" type="textarea" 
           value={context} ref={textArea} 
           onBlur={blurFunc}
@@ -96,6 +114,7 @@ function App() {
       const item = {
         idx : itemId,
         msg : message,
+        checked : false,
       };
       let temp = [...toDoLists , item];
 
@@ -104,7 +123,6 @@ function App() {
       setItemId(itemId + 1);
       localStorage.setItem('itemId', (itemId+1).toString());
       localStorage.setItem('userToDoList', JSON.stringify(temp));
-      
     }
   };
 
@@ -120,13 +138,14 @@ function App() {
       setToDoLists(JSON.parse(localStorage.getItem('userToDoList')));
       setIsGetLocal(true);
     }
-    console.log(toDoLists);
+
     setTotal( toDoLists.map((value,idx)=>{
       return <ListItem key={idx} idx={idx} index={value.idx} 
                       text={value.msg} 
                       deleteItem={deleteItem} 
                       toDoLists={toDoLists} 
                       setToDoLists={setToDoLists}
+                      checked={value.checked}
         />
     }, []));
     
