@@ -1,18 +1,20 @@
 .html{
   height:100%;
 }
+
 .App{
-  
   width:100%;
   min-height:1000px;
   height:100%;
   background-color:rgb(235, 235, 235);
 }
+
 .container{
   display:flex;
   align-items: center;
   justify-content: center;
 }
+
 .AddList{
   background-color:rgb(138, 138, 138);
   width:50px;
@@ -25,16 +27,13 @@
 }
 
 .NameTemplate{
-  
   height:70px;
   background-color:rgb(194, 164, 252);
   display:flex;
-  
   font-size:26px;
   color : aliceblue;
   align-items:center;
   justify-content: center;
-  
 }
 
 .TodoTemplate{
@@ -94,7 +93,6 @@
   align-items:center;
   justify-content: center;
   cursor:pointer;
-  
 }
 
 img{
