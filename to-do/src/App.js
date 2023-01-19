@@ -3,9 +3,9 @@ import React, {useState, useRef, useEffect} from 'react';
 
 function ListItem(props){
 
-  let textArea = useRef(); //ListItem의 
-  let [context, setContext] = useState(props.text);
-  let [isDisable, setIsDisable] = useState(false);
+  let textArea = useRef(); //input type textarea의 ref
+  let [context, setContext] = useState(props.text);  //textarea에 들어갈 문자열
+  let [isDisable, setIsDisable] = useState(false); //수정기능 활성화 여부에 따라 textarea 활성/비활성 제어 state.
 
   
   const checkHandler = e => { //체크박스 체크되면 text 취소선, 회색 아니면 그대로
@@ -16,12 +16,12 @@ function ListItem(props){
     }
   }
 
-  const modifyHandler = () => {
+  const modifyHandler = () => { // textarea 텍스트를 수정하게 해줍니다.
     isDisable ? setIsDisable(false) : setIsDisable(true);
-    setTimeout(()=>{textArea.current.focus()}, 1); // setTimeout 없이 focus가 안됨.
+    setTimeout(()=>{textArea.current.focus()}, 1); // setTimeout 없이 focus가 안됩니다.
   }
 
-  const blurFunc = () => { //수정 하다가 다른 곳 클릭했을때 메세지 저장
+  const blurFunc = () => { //수정 하다가 다른 곳 클릭했을때 (포커스를 벗어났을 때) 메세지 저장
     let temp = [...props.toDoLists];
     temp[props.idx].msg = context;
     console.log(temp);
@@ -32,7 +32,7 @@ function ListItem(props){
     modifyHandler();
   }
 
-  const handleKeyUp = (e) => {
+  const handleKeyUp = (e) => { //키 입력 이벤트 (input className="listText")에 있음
 
     if (e.key === "Enter"){
       blurFunc();
@@ -40,15 +40,19 @@ function ListItem(props){
     }
   }
 
-  const doubleClick = (e) => { 
-    modifyHandler();
+  const doubleClick = (e) => { //double클릭시, 수정 기능 활성화
+    if (e.target.type !== "checkbox"){
+      console.log(e.target);
+      modifyHandler();
+    }
+    
   }
 
   useEffect(()=>{
-    console.log("context : " , setContext(props.text));
+    setContext(props.text); // props.text를 업데이트 해줌.
   })
 
-//document.activeElement === textArea.current ? props.text : 'focus'
+  
   return (
     <div className="ListItem">
       <div className="text" onDoubleClick={doubleClick}>
@@ -58,7 +62,8 @@ function ListItem(props){
           onBlur={blurFunc}
           onChange={()=>{setContext(textArea.current.value);}}
           onKeyUp={handleKeyUp}
-          disabled={isDisable ? false : true}/>
+          disabled={isDisable ? false : true}
+        />
       </div>
       <div className="modify" onClick={modifyHandler}>
         <img src={process.env.PUBLIC_URL + '/pencil.png'}/>
@@ -77,7 +82,7 @@ function App() {
   const [message, setMessage] = useState(''); //할 일 입력 메세지 state
   const [toDoLists, setToDoLists] = useState([]); //항목 리스트
   const [itemId, setItemId] = useState(0); //항목 유니크 ID값
-  const [total, setTotal] = useState([]);
+  const [total, setTotal] = useState([]); //최종 HTMLElement가 담기는 배열
 
   const handleMessageChange = event => { //message state에 저장되도록 함
     setMessage(event.target.value);
@@ -86,21 +91,17 @@ function App() {
   const AddListItem = (e) => { //항목 추가
     e.preventDefault();
 
-    const item = {
-      idx : itemId,
-      msg : message,
-    };
+    if (message != ''){ //메시지가 빈 칸일 때만 수행됩니다.
+      const item = {
+        idx : itemId,
+        msg : message,
+      };
+      let temp = [...toDoLists , item];
 
-    let temp = [...toDoLists , item];
-
-    if (message != ''){
-      
       setToDoLists(temp);
       setMessage('');
-      
       setItemId(itemId + 1);
     }
-
   };
 
   const handleKeyUp = (e) => { //Enter키 누르면 항목 추가
@@ -112,14 +113,13 @@ function App() {
   useEffect(()=>{
     setTotal( toDoLists.map((value,idx)=>{
       return <ListItem key={idx} idx={idx} index={value.idx} 
-      text={value.msg} 
-      deleteItem={deleteItem} 
-      toDoLists={toDoLists} 
-      setToDoLists={setToDoLists}
-      
-      />
+                      text={value.msg} 
+                      deleteItem={deleteItem} 
+                      toDoLists={toDoLists} 
+                      setToDoLists={setToDoLists}
+        />
     }, []));
-    console.log("total : ", toDoLists);
+
   }, [toDoLists]);
 
   const deleteItem = (idx, e) => {
@@ -149,7 +149,14 @@ function App() {
           <div className="TodoList">
             <div className="TodoListItem">
               {
-                total
+                toDoLists.map((value,idx)=>{
+                  return <ListItem key={idx} idx={idx} index={value.idx} 
+                                  text={value.msg} 
+                                  deleteItem={deleteItem} 
+                                  toDoLists={toDoLists} 
+                                  setToDoLists={setToDoLists}
+                    />
+                }, [])
               }
             </div>
           </div>
