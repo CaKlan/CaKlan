@@ -1,6 +1,7 @@
 import './App.css';
 import React, {useState, useRef, useEffect} from 'react';
 
+
 function ListItem(props){
 
   let textArea = useRef(); //input type textarea의 ref
@@ -75,14 +76,14 @@ function ListItem(props){
   );
 }
 
-
-
 function App() {
 
   const [message, setMessage] = useState(''); //할 일 입력 메세지 state
   const [toDoLists, setToDoLists] = useState([]); //항목 리스트
   const [itemId, setItemId] = useState(0); //항목 유니크 ID값
   const [total, setTotal] = useState([]); //최종 HTMLElement가 담기는 배열
+  const [isGetLocal, setIsGetLocal] = useState(false);
+  
 
   const handleMessageChange = event => { //message state에 저장되도록 함
     setMessage(event.target.value);
@@ -91,7 +92,7 @@ function App() {
   const AddListItem = (e) => { //항목 추가
     e.preventDefault();
 
-    if (message != ''){ //메시지가 빈 칸일 때만 수행됩니다.
+    if (message !== ''){ //메시지가 빈 칸일 때만 수행됩니다.
       const item = {
         idx : itemId,
         msg : message,
@@ -101,16 +102,25 @@ function App() {
       setToDoLists(temp);
       setMessage('');
       setItemId(itemId + 1);
+      localStorage.setItem('itemId', (itemId+1).toString());
+      localStorage.setItem('userToDoList', JSON.stringify(temp));
+      
     }
   };
 
   const handleKeyUp = (e) => { //Enter키 누르면 항목 추가
-    if(e.key === 'Enter' && message != '') {
+    if(e.key === 'Enter' && message !== '') {
       AddListItem(e);
     }
   }
 
   useEffect(()=>{
+    if (!isGetLocal && JSON.parse(localStorage.getItem('userToDoList'))) { 
+      setItemId(Number(localStorage.getItem('itemId')));
+      setToDoLists(JSON.parse(localStorage.getItem('userToDoList')));
+      setIsGetLocal(true);
+    }
+    console.log(toDoLists);
     setTotal( toDoLists.map((value,idx)=>{
       return <ListItem key={idx} idx={idx} index={value.idx} 
                       text={value.msg} 
@@ -119,49 +129,44 @@ function App() {
                       setToDoLists={setToDoLists}
         />
     }, []));
-
+    
   }, [toDoLists]);
 
   const deleteItem = (idx, e) => {
 
     let temp = [...toDoLists];
     let a = temp.filter((x)=>{
-      return x.idx != idx;
+      return x.idx !== idx;
     });
+    localStorage.setItem('userToDoList', JSON.stringify(a));
     
     setToDoLists(a);
-    //console.log("x : ", temp, " idx : ", idx);
   }
   
   return (
     <div className="App">
     <div className="container">
-      <div className="TodoTemplate">
-        <div className="NameTemplate">일정 관리</div>
+    <div className="TodoTemplate">
+      
+      <div className="NameTemplate">일정 관리</div>
 
-          <div className="ToDoInsert">
-            <input className="ToDoText" type="textarea" value={message} onChange={handleMessageChange} onKeyUp={handleKeyUp} placeholder="할 일을 입력하세요"/>
-            <div className="AddList" onClick={AddListItem}>
-              <img src={process.env.PUBLIC_URL + '/free_icon_1 (1).svg'}/>
-            </div>
-          </div>
-
-          <div className="TodoList">
-            <div className="TodoListItem">
-              {
-                toDoLists.map((value,idx)=>{
-                  return <ListItem key={idx} idx={idx} index={value.idx} 
-                                  text={value.msg} 
-                                  deleteItem={deleteItem} 
-                                  toDoLists={toDoLists} 
-                                  setToDoLists={setToDoLists}
-                    />
-                }, [])
-              }
-            </div>
-          </div>
+      <div className="ToDoInsert">
+        <input className="ToDoText" type="textarea" value={message} onChange={handleMessageChange} onKeyUp={handleKeyUp} placeholder="할 일을 입력하세요"/>
+        <div className="AddList" onClick={AddListItem}>
+          <img src={process.env.PUBLIC_URL + '/free_icon_1 (1).svg'}/>
         </div>
       </div>
+
+      <div className="TodoList">
+        <div className="TodoListItem">
+          {
+            total
+          }
+        </div>
+      </div>
+
+    </div>
+    </div>
     </div>
       
   );
