@@ -1,5 +1,6 @@
 import "./App.css";
 import React, { useState, useRef, useEffect } from "react";
+import { SketchPicker, ChromePicker } from 'react-color';
 
 function ListItem(props) {
   let textArea = useRef(); //input type textarea의 ref
@@ -10,19 +11,17 @@ function ListItem(props) {
   let [checked, setChecked] = useState(props.item.checked);
   let [firstUpdate, setFirstUpdate] = useState(false);
 
-  let [itemStyle, setItemStyle] = useState({border:"1px solid aliceblue"});
+  let [itemStyle, setItemStyle] = useState({ border: "1px solid aliceblue" });
 
   const checkHandler = () => {
-
-    
     //체크박스 체크되면 text 취소선, 회색 아니면 그대로
     if (checkBox.current.checked) {
       setChecked(true);
-      let temp = {...props.item};
+      let temp = { ...props.item };
       temp.checked = true;
     } else {
       setChecked(false);
-      let temp = {...props.item};
+      let temp = { ...props.item };
       temp.checked = false;
     }
   };
@@ -37,18 +36,18 @@ function ListItem(props) {
 
   const blurFunc = () => {
     //수정 하다가 다른 곳 클릭했을때 (포커스를 벗어났을 때) 메세지 저장
-    if (!props.item.checked){
+    if (!props.item.checked) {
       let temp = [...props.toDoLists];
       temp[props.idx].msg = context;
-  
+
       props.setToDoLists(temp);
       localStorage.setItem("userToDoList", JSON.stringify(temp));
       //console.log(props.toDoLists);
       setContext(textArea.current.value);
       modifyHandler();
     }
-    else{
-      
+    else {
+
       let temp = [...props.completeLists];
       temp[props.idx].msg = context;
       props.setCompleteLists(temp);
@@ -56,7 +55,7 @@ function ListItem(props) {
       setContext(textArea.current.value);
       modifyHandler();
     }
-    let styleTemp = {...itemStyle};
+    let styleTemp = { ...itemStyle };
     styleTemp.border = "1px solid aliceblue";
     setItemStyle(styleTemp);
   };
@@ -88,39 +87,46 @@ function ListItem(props) {
       checkHandler();
       setFirstUpdate(true);
     }
-    
+
   });
 
   return (
     <div className="ListItem" style={itemStyle}>
-      <div
-        className="OrderChanger"
-
-      ></div>
+      <div className="OrderChanger">
+        <div className="ListUp" style={{height:"35px"}}>
+          <img src={process.env.PUBLIC_URL + "/up-chevron.png"} width={"15px"} height={"15px"} />
+        </div>
+        <div className="ListDown" style={{height:"35px"}}>
+          <img src={process.env.PUBLIC_URL + "/down-chevron.png"} width={"15px"} height={"15px"} style={{marginTop:"17px"}}/>
+        </div>
+      </div>
       <div className="text" onDoubleClick={doubleClick}>
         <input
           type={"checkbox"}
           onChange={checkHandler}
           checked={checked}
           ref={checkBox}
-          onClick={(e) => {let temp = {...props.item}; e.target.checked ? temp.checked = true: temp.checked = false; props.listToComplete(temp, e)}}
+          width={"30px"}
+          height={"30px"}
+          onClick={(e) => { let temp = { ...props.item }; e.target.checked ? temp.checked = true : temp.checked = false; props.listToComplete(temp, e) }}
         />
         <input
           className={checked ? "listText_lt" : "listText"}
           type="textarea"
           value={context}
           ref={textArea}
-          onFocus={()=>{let temp = {...itemStyle}; temp.border = "1px solid rgb(192, 129, 255)"; setItemStyle(temp);}}
+          onFocus={() => { let temp = { ...itemStyle }; temp.border = "1px solid rgb(192, 129, 255)"; setItemStyle(temp); }}
           onBlur={blurFunc}
           onChange={() => {
             setContext(textArea.current.value);
           }}
           onKeyUp={handleKeyUp}
+          placeholder="할 일을 입력해보세요!"
           disabled={isDisable ? false : true}
         />
       </div>
       <div className="modify" onClick={modifyHandler}>
-        <img src={process.env.PUBLIC_URL + "/pencil.png"} />
+        <img src={process.env.PUBLIC_URL + "/pencil.png"} width={"20px"} height={"20px"} />
       </div>
       <div
         className="delete"
@@ -128,7 +134,7 @@ function ListItem(props) {
           props.deleteItem(props.item, e);
         }}
       >
-        <img src={process.env.PUBLIC_URL + "/forbidden.png"} />
+        <img src={process.env.PUBLIC_URL + "/forbidden.png"} width={"20px"} height={"20px"}/>
       </div>
     </div>
   );
@@ -142,6 +148,11 @@ function App() {
   const [completeLists, setCompleteLists] = useState([]);
   const [itemId, setItemId] = useState(0); //항목 유니크 ID값
   const [isGetLocal, setIsGetLocal] = useState(false); //localstorage 저장 여부 (첫 실행 분기)
+  const [color, setColor] = useState("");
+  const [colors, setColors] = useState([]);
+  const [onPicker, setOnPicker] = useState(false);
+  const [colorArray, setColorArray] = useState(["","","","",""]);
+  const [changeElement, setChangeElement] = useState("");
 
   const handleMessageChange = (event) => {
     //message state에 저장되도록 함
@@ -167,7 +178,7 @@ function App() {
       localStorage.setItem("itemId", (itemId + 1).toString());
       localStorage.setItem("userToDoList", JSON.stringify(temp));
     }
-    
+
   };
 
   const handleKeyUp = (e) => {
@@ -183,51 +194,53 @@ function App() {
 
       if (JSON.parse(localStorage.getItem("userToDoList"))) { setToDoLists(JSON.parse(localStorage.getItem("userToDoList"))); }
       if (JSON.parse(localStorage.getItem("userCompleteList"))) { setCompleteLists(JSON.parse(localStorage.getItem("userCompleteList"))); }
+      if (JSON.parse(localStorage.getItem("colorTemplate"))) { setColorArray(JSON.parse(localStorage.getItem("colorTemplate"))); }
 
       setIsGetLocal(true);
+
     }
-    
-    
-  },[]);
+
+
+  }, []);
 
   const deleteItem = (item, e) => {
-    
-    if (!item.checked){
-      
+
+    if (!item.checked) {
+
       let temp = [...toDoLists];
       let a = temp.filter((x) => {
         return x.idx !== item.idx;
       });
       localStorage.setItem("userToDoList", JSON.stringify(a));
-  
+
       setToDoLists(a);
-    }else{
+    } else {
       let temp = [...completeLists];
-      let a = temp.filter((x)=>{
+      let a = temp.filter((x) => {
         return x.idx !== item.idx;
       })
       localStorage.setItem('userCompleteList', JSON.stringify(a));
 
       setCompleteLists(a);
     }
-    
+
   };
 
   const listToComplete = (item, e) => {
     console.log(item);
-    if(item.checked){
+    if (item.checked) {
       let temp = [...toDoLists];
-      let a = temp.filter((v)=>{return v.idx != item.idx});
+      let a = temp.filter((v) => { return v.idx != item.idx });
       let compTemp = [...completeLists, item];
       setToDoLists(a);
       setCompleteLists(compTemp);
-      
+
       localStorage.setItem("userToDoList", JSON.stringify(a));
       localStorage.setItem("userCompleteList", JSON.stringify(compTemp));
-    }else{
+    } else {
       let temp = [...toDoLists, item];
       let compTemp = [...completeLists];
-      let b = compTemp.filter((v)=>{return v.idx != item.idx});
+      let b = compTemp.filter((v) => { return v.idx != item.idx });
       setToDoLists(temp);
       setCompleteLists(b);
 
@@ -238,29 +251,74 @@ function App() {
 
   const DeleteAll = (list, e) => {
     e.preventDefault();
-    if (list === 'toDoLists'){
-      if(window.confirm("정말로 전부 삭제하시겠습니까?")){
+    if (list === 'toDoLists') {
+      if (window.confirm("정말로 전부 삭제하시겠습니까?")) {
         setToDoLists([]);
         alert("삭제 완료되었습니다.");
         localStorage.setItem("userToDoList", "[]");
       }
-      
-      
-    }else if (list === 'completeLists'){
-      if(window.confirm("정말로 전부 삭제하시겠습니까?")){
+
+
+    } else if (list === 'completeLists') {
+      if (window.confirm("정말로 전부 삭제하시겠습니까?")) {
         setCompleteLists([]);
         alert("삭제 완료되었습니다.")
         localStorage.setItem("userCompleteList", "[]");
       }
-      
+
     }
   }
-  
+  const handleColorChange = (c) => {
+    setColor(c);
+    console.log(color);
+  }
+
+  const ColorPicker = (string) => {
+    setOnPicker(!onPicker);
+    console.log(changeElement);
+
+    setTimeout(()=>{
+      let temp = [...colorArray];
+      if(onPicker){
+        setChangeElement('');
+        
+        
+        switch(string){
+          case "일정관리":
+            temp[0] = color.substring(1);
+            break;
+          case "텍스트 입력":
+            temp[1] = color.substring(1);
+            break;
+          case "+":
+            temp[2] = color.substring(1);
+            break;
+          case "할일":
+            temp[3] = color.substring(1);
+            break;
+          case "전체삭제":
+            temp[4] = color.substring(1);
+            break;
+          default:
+            break;
+          }
+          setColorArray(temp);
+          localStorage.setItem("colorTemplate", JSON.stringify(temp));
+      }else{
+        setChangeElement(string);
+      }
+    }, 10); 
+  } 
+  // <SketchPicker color={color} colors={colors} onChange={color => handleColorChange(color.hex)} />
+  //         <SketchPicker color={color} colors={colors} onChange={color => handleColorChange(color.hex)} />
+  //         <SketchPicker color={color} colors={colors} onChange={color => handleColorChange(color.hex)} />
+  //         <SketchPicker color={color} colors={colors} onChange={color => handleColorChange(color.hex)} />
   return (
     <div className="App">
       <div className="container">
-        <div className="TodoTemplate">
-          <div className="NameTemplate">일정 관리</div>
+        <span className="TodoTemplate">
+          <div className="NameTemplate" style={onPicker && (changeElement == "일정관리") ? {backgroundColor:`${color}`}:{backgroundColor:`#${colorArray[0]}`}}>일정 관리</div>
+          
 
           <div className="ToDoInsert">
             <input
@@ -269,47 +327,48 @@ function App() {
               value={message}
               onChange={handleMessageChange}
               onKeyUp={handleKeyUp}
+              style={onPicker && (changeElement == "텍스트 입력") ? {backgroundColor:`${color}`}:{backgroundColor:`#${colorArray[1]}`}}
               placeholder="할 일을 입력하세요"
             />
-            <div className="AddList" onClick={AddListItem}>
+            <div className="AddList" onClick={AddListItem} style={onPicker && (changeElement == "+") ? {backgroundColor:`${color}`}:{backgroundColor:`#${colorArray[2]}`}}>
               <img src={process.env.PUBLIC_URL + "/free_icon_1 (1).svg"} />
             </div>
           </div>
 
           <div className="TodoList">
-            <div className="ToDoTitle">할 일</div>
-            <div className="DeleteAll" onClick={(e)=>{DeleteAll("toDoLists", e)}}>전체 삭제</div>
+            <div className="ToDoTitle" style={onPicker && (changeElement == "할일") ? {backgroundColor:`${color}`}:{backgroundColor:`#${colorArray[3]}`}}>할 일</div>
+            <div className="DeleteAll" onClick={(e) => { DeleteAll("toDoLists", e) }} style={onPicker && (changeElement == "전체삭제") ? {backgroundColor:`${color}`}:{backgroundColor:`${colorArray[4]}`}}>전체 삭제</div>
             <div className="TodoListItem" ref={toDoListItem}>
-              <div style={{minHeight : "216px"}}>
+              <div style={{ minHeight: "216px" }}>
                 {
                   toDoLists.length > 0 ?
-                  toDoLists.map((value, idx) => {
-                    return (
-                      <ListItem
-                        key={idx}
-                        idx={idx}
-                        item={value}
-                        deleteItem={deleteItem}
-                        toDoLists={toDoLists}
-                        setToDoLists={setToDoLists}
-                        checked={value.checked}
-                        toDoListItem={toDoListItem}
-                        completeLists={completeLists}
-                        setCompleteLists={setCompleteLists}
-                        listToComplete={listToComplete}
-                      />  
-                    );
-                  }, []) : 
-                  <p style={{display:"flex",alignItems:"center",justifyContent:"center",color:"gray",margin:"0"}}>할 일을 추가해보세요!</p>
+                    toDoLists.map((value, idx) => {
+                      return (
+                        <ListItem
+                          key={idx}
+                          idx={idx}
+                          item={value}
+                          deleteItem={deleteItem}
+                          toDoLists={toDoLists}
+                          setToDoLists={setToDoLists}
+                          checked={value.checked}
+                          toDoListItem={toDoListItem}
+                          completeLists={completeLists}
+                          setCompleteLists={setCompleteLists}
+                          listToComplete={listToComplete}
+                        />
+                      );
+                    }, []) :
+                    <p style={{ display: "flex", alignItems: "center", justifyContent: "center", color: "gray", margin: "0" }}>할 일을 추가해보세요!</p>
                 }
               </div>
-              <div className="CompleteTitle">완료한 일</div>
-              <div className="DeleteAll" onClick={(e)=>{DeleteAll("completeLists", e)}}>전체 삭제</div>
-              <div style={{minHeight : "216px"}}>
-              
-              {
-                
-                completeLists.map((value, idx) => {
+              <div className="CompleteTitle" style={onPicker && (changeElement == "할일") ? {backgroundColor:`${color}`}:{backgroundColor:`#${colorArray[3]}`}}>완료한 일</div>
+              <div className="DeleteAll" onClick={(e) => { DeleteAll("completeLists", e) }} style={onPicker && (changeElement == "전체삭제") ? {backgroundColor:`${color}`}:{backgroundColor:`#${colorArray[4]}`}}>전체 삭제</div>
+              <div style={{ minHeight: "216px" }}>
+
+                {
+
+                  completeLists.map((value, idx) => {
                     return (
                       <ListItem
                         key={idx}
@@ -325,15 +384,25 @@ function App() {
                         listToComplete={listToComplete}
                       />
                     );
-                  }, []) 
-                
-              }
-                
+                  }, [])
+
+                }
+
               </div>
             </div>
           </div>
-        </div>
+        </span>
+        <span style={{display:"block",height:"1000px"}}>
+          <div className="ColorChanger" style={{marginTop:"177px"}} onClick={()=>{ColorPicker("일정관리")}} >일정관리</div>
+          <div className="ColorChanger" style={{marginTop:"8px"}} onClick={()=>{ColorPicker("텍스트 입력")}} onBlur={()=>{setOnPicker(false)}}>텍스트 입력</div>
+          <div className="ColorChanger" style={{marginTop:"8px"}} onClick={()=>{ColorPicker("+")}} onBlur={()=>{setOnPicker(false)}}>+</div>
+          <div className="ColorChanger" style={{marginTop:"8px"}} onClick={()=>{ColorPicker("할일")}}>할일</div>
+          <div className="ColorChanger" style={{marginTop:"8px"}} onClick={()=>{ColorPicker("전체삭제")}}>전체삭제</div>
+          {onPicker && <SketchPicker color={color} colors={colors} onChange={color => handleColorChange(color.hex)} /> }
+        </span>
       </div>
+      
+      
     </div>
   );
 }
