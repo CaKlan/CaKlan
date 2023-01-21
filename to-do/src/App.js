@@ -10,11 +10,11 @@ function ListItem(props) {
   let [checked, setChecked] = useState(props.item.checked);
   let [firstUpdate, setFirstUpdate] = useState(false);
 
-  let [itemStyle, setItemStyle] = useState({});
+  let [itemStyle, setItemStyle] = useState({border:"1px solid aliceblue"});
 
   const checkHandler = () => {
 
-    console.log("checkHandler")
+    
     //체크박스 체크되면 text 취소선, 회색 아니면 그대로
     if (checkBox.current.checked) {
       setChecked(true);
@@ -37,14 +37,28 @@ function ListItem(props) {
 
   const blurFunc = () => {
     //수정 하다가 다른 곳 클릭했을때 (포커스를 벗어났을 때) 메세지 저장
-    let temp = [...props.toDoLists];
-    temp[props.item.idx].msg = context;
-
-    props.setToDoLists(temp);
-    localStorage.setItem("userToDoList", JSON.stringify(temp));
-    //console.log(props.toDoLists);
-    setContext(textArea.current.value);
-    modifyHandler();
+    if (!props.item.checked){
+      let temp = [...props.toDoLists];
+      temp[props.idx].msg = context;
+  
+      props.setToDoLists(temp);
+      localStorage.setItem("userToDoList", JSON.stringify(temp));
+      //console.log(props.toDoLists);
+      setContext(textArea.current.value);
+      modifyHandler();
+    }
+    else{
+      
+      let temp = [...props.completeLists];
+      temp[props.idx].msg = context;
+      props.setCompleteLists(temp);
+      localStorage.setItem("userCompleteList", JSON.stringify(temp));
+      setContext(textArea.current.value);
+      modifyHandler();
+    }
+    let styleTemp = {...itemStyle};
+    styleTemp.border = "1px solid aliceblue";
+    setItemStyle(styleTemp);
   };
 
   const handleKeyUp = (e) => {
@@ -74,7 +88,7 @@ function ListItem(props) {
       checkHandler();
       setFirstUpdate(true);
     }
-    //itemStyle.border = selected ? "1px solid rgb(119, 132, 255)": "1px solid aliceblue";
+    
   });
 
   return (
@@ -96,6 +110,7 @@ function ListItem(props) {
           type="textarea"
           value={context}
           ref={textArea}
+          onFocus={()=>{let temp = {...itemStyle}; temp.border = "1px solid rgb(192, 129, 255)"; setItemStyle(temp);}}
           onBlur={blurFunc}
           onChange={() => {
             setContext(textArea.current.value);
@@ -152,6 +167,7 @@ function App() {
       localStorage.setItem("itemId", (itemId + 1).toString());
       localStorage.setItem("userToDoList", JSON.stringify(temp));
     }
+    
   };
 
   const handleKeyUp = (e) => {
@@ -170,12 +186,12 @@ function App() {
 
       setIsGetLocal(true);
     }
-
+    
     
   },[]);
 
   const deleteItem = (item, e) => {
-    console.log(item.checked);
+    
     if (!item.checked){
       
       let temp = [...toDoLists];
@@ -185,6 +201,14 @@ function App() {
       localStorage.setItem("userToDoList", JSON.stringify(a));
   
       setToDoLists(a);
+    }else{
+      let temp = [...completeLists];
+      let a = temp.filter((x)=>{
+        return x.idx !== item.idx;
+      })
+      localStorage.setItem('userCompleteList', JSON.stringify(a));
+
+      setCompleteLists(a);
     }
     
   };
@@ -212,7 +236,25 @@ function App() {
     }
   }
 
-  
+  const DeleteAll = (list, e) => {
+    e.preventDefault();
+    if (list === 'toDoLists'){
+      if(window.confirm("정말로 전부 삭제하시겠습니까?")){
+        setToDoLists([]);
+        alert("삭제 완료되었습니다.");
+        localStorage.setItem("userToDoList", "");
+      }
+      
+      
+    }else if (list === 'completeLists'){
+      if(window.confirm("정말로 전부 삭제하시겠습니까?")){
+        setCompleteLists([]);
+        alert("삭제 완료되었습니다.")
+        localStorage.setItem("userCompleteList", "");
+      }
+      
+    }
+  }
   
   return (
     <div className="App">
@@ -235,42 +277,58 @@ function App() {
           </div>
 
           <div className="TodoList">
-            <div className="DeleteAll"></div>
+            <div className="ToDoTitle">할 일</div>
+            <div className="DeleteAll" onClick={(e)=>{DeleteAll("toDoLists", e)}}>전체 삭제</div>
             <div className="TodoListItem" ref={toDoListItem}>
-              <div style={{minHeight : "150px"}}>
-                {toDoLists.map((value, idx) => {
-                  return (
-                    <ListItem
-                      key={idx}
-                      idx={idx}
-                      item={value}
-                      deleteItem={deleteItem}
-                      toDoLists={toDoLists}
-                      setToDoLists={setToDoLists}
-                      checked={value.checked}
-                      toDoListItem={toDoListItem}
-                      listToComplete={listToComplete}
-                    />
-                  );
-                }, [])}
+              <div style={{minHeight : "210px"}}>
+                {
+                  toDoLists.length > 0 ?
+                  toDoLists.map((value, idx) => {
+                    return (
+                      <ListItem
+                        key={idx}
+                        idx={idx}
+                        item={value}
+                        deleteItem={deleteItem}
+                        toDoLists={toDoLists}
+                        setToDoLists={setToDoLists}
+                        checked={value.checked}
+                        toDoListItem={toDoListItem}
+                        completeLists={completeLists}
+                        setCompleteLists={setCompleteLists}
+                        listToComplete={listToComplete}
+                      />  
+                    );
+                  }, []) : 
+                  <p style={{display:"flex",alignItems:"center",justifyContent:"center",color:"gray"}}>할 일을 추가해보세요!</p>
+                }
               </div>
-              <hr />
-              <div style={{minHeight : "150px"}}>
-              {completeLists.map((value, idx) => {
-                  return (
-                    <ListItem
-                      key={idx}
-                      idx={idx}
-                      item={value}
-                      deleteItem={deleteItem}
-                      toDoLists={toDoLists}
-                      setToDoLists={setToDoLists}
-                      checked={value.checked}
-                      toDoListItem={toDoListItem}
-                      listToComplete={listToComplete}
-                    />
-                  );
-                }, [])}
+              <div className="CompleteTitle">완료한 일</div>
+              <div className="DeleteAll" onClick={(e)=>{DeleteAll("completeLists", e)}}>전체 삭제</div>
+              <div style={{minHeight : "210px"}}>
+              
+              {
+                
+                completeLists.map((value, idx) => {
+                    return (
+                      <ListItem
+                        key={idx}
+                        idx={idx}
+                        item={value}
+                        deleteItem={deleteItem}
+                        toDoLists={toDoLists}
+                        setToDoLists={setToDoLists}
+                        checked={value.checked}
+                        toDoListItem={toDoListItem}
+                        completeLists={completeLists}
+                        setCompleteLists={setCompleteLists}
+                        listToComplete={listToComplete}
+                      />
+                    );
+                  }, []) 
+                
+              }
+                
               </div>
             </div>
           </div>

@@ -16,7 +16,21 @@
   background-color: rgb(235, 235, 235);
 }
 
+.ToDoTitle{
+  display:flex;
+  align-items: center;
+  justify-content: center;
+  color:aliceblue;
+  background-color: rgb(197, 143, 255);
+}
 
+.CompleteTitle{
+  display:flex;
+  align-items: center;
+  justify-content: center;
+  color:aliceblue;
+  background-color: rgb(133, 63, 204);
+}
 .ListItem {
   height: 70px;
   display: flex;
@@ -65,7 +79,7 @@
   display: flex;
   width: 500px;
   height: auto;
-  min-height: 500px;
+  
   background-color: aliceblue;
   flex-direction: column;
 }
@@ -85,9 +99,20 @@
   cursor: pointer;
 }
 
+.DeleteAll{
+  width:20%;
+  margin-left:80%;
+  color:aliceblue;
+  display:flex;
+  align-items: center;
+  justify-content: center;
+  height:30px;
+  background-color:rgb(255, 100, 100);
+  cursor:pointer;
+}
 .OrderChanger {
-  width:20px;
-  background-color:gray;
+  width:15px;
+  background-color:rgb(159, 159, 159);
   height:100%;
   cursor:pointer;
   flex: 0 0 auto;
@@ -136,4 +161,5 @@ img {
   display: flex;
   align-items: center;
   user-select: none;
+  /* color:rgb(192, 129, 255) */
 }
