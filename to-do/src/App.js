@@ -242,7 +242,7 @@ function App() {
       if(window.confirm("정말로 전부 삭제하시겠습니까?")){
         setToDoLists([]);
         alert("삭제 완료되었습니다.");
-        localStorage.setItem("userToDoList", "");
+        localStorage.setItem("userToDoList", "[]");
       }
       
       
@@ -250,7 +250,7 @@ function App() {
       if(window.confirm("정말로 전부 삭제하시겠습니까?")){
         setCompleteLists([]);
         alert("삭제 완료되었습니다.")
-        localStorage.setItem("userCompleteList", "");
+        localStorage.setItem("userCompleteList", "[]");
       }
       
     }
