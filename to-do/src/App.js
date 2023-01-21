@@ -280,7 +280,7 @@ function App() {
             <div className="ToDoTitle">할 일</div>
             <div className="DeleteAll" onClick={(e)=>{DeleteAll("toDoLists", e)}}>전체 삭제</div>
             <div className="TodoListItem" ref={toDoListItem}>
-              <div style={{minHeight : "210px"}}>
+              <div style={{minHeight : "216px"}}>
                 {
                   toDoLists.length > 0 ?
                   toDoLists.map((value, idx) => {
@@ -300,12 +300,12 @@ function App() {
                       />  
                     );
                   }, []) : 
-                  <p style={{display:"flex",alignItems:"center",justifyContent:"center",color:"gray"}}>할 일을 추가해보세요!</p>
+                  <p style={{display:"flex",alignItems:"center",justifyContent:"center",color:"gray",margin:"0"}}>할 일을 추가해보세요!</p>
                 }
               </div>
               <div className="CompleteTitle">완료한 일</div>
               <div className="DeleteAll" onClick={(e)=>{DeleteAll("completeLists", e)}}>전체 삭제</div>
-              <div style={{minHeight : "210px"}}>
+              <div style={{minHeight : "216px"}}>
               
               {
                 
