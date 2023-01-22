@@ -76,6 +76,58 @@ function ListItem(props) {
     }
   };
 
+  const ListUp = () => {
+
+    if (!props.checked) {
+      let temp = [...props.toDoLists];
+
+      if (props.idx > 0) {
+        let a = temp[props.idx - 1];
+        temp[props.idx - 1] = props.item;
+        temp[props.idx] = a;
+      }
+
+      props.setToDoLists(temp);
+      localStorage.setItem('userToDoList', JSON.stringify(temp));
+    } else {
+      let temp = [...props.completeLists];
+
+      if (props.idx > 0) {
+        let a = temp[props.idx - 1];
+        temp[props.idx - 1] = props.item;
+        temp[props.idx] = a;
+      }
+
+      props.setCompleteLists(temp);
+      localStorage.setItem('userCompleteList', JSON.stringify(temp));
+    }
+  }
+
+  const ListDown = () => {
+    if (!props.checked) {
+      let temp = [...props.toDoLists];
+      if (props.idx < props.toDoLists.length - 1) {
+        let a = temp[props.idx + 1];
+        temp[props.idx + 1] = props.item;
+        temp[props.idx] = a;
+      }
+
+      props.setToDoLists(temp);
+      localStorage.setItem('userToDoList', JSON.stringify(temp));
+    } else {
+      let temp = [...props.completeLists];
+      if (props.idx < props.completeLists.length - 1) {
+        let a = temp[props.idx + 1];
+        temp[props.idx + 1] = props.item;
+        temp[props.idx] = a;
+      }
+
+      props.setCompleteLists(temp);
+      localStorage.setItem('userCompleteList', JSON.stringify(temp));
+    }
+
+  }
+
   useEffect(() => {
     if (!isDisable) {
       setContext(props.item.msg);
@@ -93,11 +145,11 @@ function ListItem(props) {
   return (
     <div className="ListItem" style={itemStyle}>
       <div className="OrderChanger">
-        <div className="ListUp" style={{height:"35px"}}>
+        <div className="ListUp" style={{ height: "35px" }} onClick={ListUp}>
           <img src={process.env.PUBLIC_URL + "/up-chevron.png"} width={"15px"} height={"15px"} />
         </div>
-        <div className="ListDown" style={{height:"35px"}}>
-          <img src={process.env.PUBLIC_URL + "/down-chevron.png"} width={"15px"} height={"15px"} style={{marginTop:"17px"}}/>
+        <div className="ListDown" style={{ height: "35px" }} onClick={ListDown}>
+          <img src={process.env.PUBLIC_URL + "/down-chevron.png"} width={"15px"} height={"15px"} style={{ marginTop: "17px" }} />
         </div>
       </div>
       <div className="text" onDoubleClick={doubleClick}>
@@ -134,7 +186,7 @@ function ListItem(props) {
           props.deleteItem(props.item, e);
         }}
       >
-        <img src={process.env.PUBLIC_URL + "/forbidden.png"} width={"20px"} height={"20px"}/>
+        <img src={process.env.PUBLIC_URL + "/forbidden.png"} width={"20px"} height={"20px"} />
       </div>
     </div>
   );
@@ -151,7 +203,7 @@ function App() {
   const [color, setColor] = useState("");
   const [colors, setColors] = useState([]);
   const [onPicker, setOnPicker] = useState(false);
-  const [colorArray, setColorArray] = useState(["","","","",""]);
+  const [colorArray, setColorArray] = useState(["", "", "", "", ""]);
   const [changeElement, setChangeElement] = useState("");
 
   const handleMessageChange = (event) => {
@@ -277,13 +329,13 @@ function App() {
     setOnPicker(!onPicker);
     console.log(changeElement);
 
-    setTimeout(()=>{
+    setTimeout(() => {
       let temp = [...colorArray];
-      if(onPicker){
+      if (onPicker) {
         setChangeElement('');
-        
-        
-        switch(string){
+
+
+        switch (string) {
           case "일정관리":
             temp[0] = color.substring(1);
             break;
@@ -301,24 +353,41 @@ function App() {
             break;
           default:
             break;
-          }
-          setColorArray(temp);
-          localStorage.setItem("colorTemplate", JSON.stringify(temp));
-      }else{
+        }
+        setColorArray(temp);
+        localStorage.setItem("colorTemplate", JSON.stringify(temp));
+      } else {
         setChangeElement(string);
+        switch (string) {
+          case "일정관리":
+            setColor(temp[0]);
+            break;
+          case "텍스트 입력":
+            setColor(temp[1]);
+            break;
+          case "+":
+            setColor(temp[2]);
+            break;
+          case "할일":
+            setColor(temp[3]);
+            break;
+          case "전체삭제":
+            setColor(temp[4]);
+            break;
+          default:
+            break;
+        }
+
       }
-    }, 10); 
-  } 
-  // <SketchPicker color={color} colors={colors} onChange={color => handleColorChange(color.hex)} />
-  //         <SketchPicker color={color} colors={colors} onChange={color => handleColorChange(color.hex)} />
-  //         <SketchPicker color={color} colors={colors} onChange={color => handleColorChange(color.hex)} />
-  //         <SketchPicker color={color} colors={colors} onChange={color => handleColorChange(color.hex)} />
+    }, 10);
+  }
+
   return (
     <div className="App">
-      <div className="container">
+      <div className="container" >
         <span className="TodoTemplate">
-          <div className="NameTemplate" style={onPicker && (changeElement == "일정관리") ? {backgroundColor:`${color}`}:{backgroundColor:`#${colorArray[0]}`}}>일정 관리</div>
-          
+          <div className="NameTemplate" style={onPicker && (changeElement == "일정관리") ? { backgroundColor: `${color}` } : { backgroundColor: `#${colorArray[0]}` }}>일정 관리</div>
+
 
           <div className="ToDoInsert">
             <input
@@ -327,17 +396,17 @@ function App() {
               value={message}
               onChange={handleMessageChange}
               onKeyUp={handleKeyUp}
-              style={onPicker && (changeElement == "텍스트 입력") ? {backgroundColor:`${color}`}:{backgroundColor:`#${colorArray[1]}`}}
+              style={onPicker && (changeElement == "텍스트 입력") ? { backgroundColor: `${color}` } : { backgroundColor: `#${colorArray[1]}` }}
               placeholder="할 일을 입력하세요"
             />
-            <div className="AddList" onClick={AddListItem} style={onPicker && (changeElement == "+") ? {backgroundColor:`${color}`}:{backgroundColor:`#${colorArray[2]}`}}>
+            <div className="AddList" onClick={AddListItem} style={onPicker && (changeElement == "+") ? { backgroundColor: `${color}` } : { backgroundColor: `#${colorArray[2]}` }}>
               <img src={process.env.PUBLIC_URL + "/free_icon_1 (1).svg"} />
             </div>
           </div>
 
           <div className="TodoList">
-            <div className="ToDoTitle" style={onPicker && (changeElement == "할일") ? {backgroundColor:`${color}`}:{backgroundColor:`#${colorArray[3]}`}}>할 일</div>
-            <div className="DeleteAll" onClick={(e) => { DeleteAll("toDoLists", e) }} style={onPicker && (changeElement == "전체삭제") ? {backgroundColor:`${color}`}:{backgroundColor:`${colorArray[4]}`}}>전체 삭제</div>
+            <div className="ToDoTitle" style={onPicker && (changeElement == "할일") ? { backgroundColor: `${color}` } : { backgroundColor: `#${colorArray[3]}` }}>할 일</div>
+            <div className="DeleteAll" onClick={(e) => { DeleteAll("toDoLists", e) }} style={onPicker && (changeElement == "전체삭제") ? { backgroundColor: `${color}` } : { backgroundColor: `${colorArray[4]}` }}>전체 삭제</div>
             <div className="TodoListItem" ref={toDoListItem}>
               <div style={{ minHeight: "216px" }}>
                 {
@@ -362,8 +431,8 @@ function App() {
                     <p style={{ display: "flex", alignItems: "center", justifyContent: "center", color: "gray", margin: "0" }}>할 일을 추가해보세요!</p>
                 }
               </div>
-              <div className="CompleteTitle" style={onPicker && (changeElement == "할일") ? {backgroundColor:`${color}`}:{backgroundColor:`#${colorArray[3]}`}}>완료한 일</div>
-              <div className="DeleteAll" onClick={(e) => { DeleteAll("completeLists", e) }} style={onPicker && (changeElement == "전체삭제") ? {backgroundColor:`${color}`}:{backgroundColor:`#${colorArray[4]}`}}>전체 삭제</div>
+              <div className="CompleteTitle" style={onPicker && (changeElement == "할일") ? { backgroundColor: `${color}` } : { backgroundColor: `#${colorArray[3]}` }}>완료한 일</div>
+              <div className="DeleteAll" onClick={(e) => { DeleteAll("completeLists", e) }} style={onPicker && (changeElement == "전체삭제") ? { backgroundColor: `${color}` } : { backgroundColor: `#${colorArray[4]}` }}>전체 삭제</div>
               <div style={{ minHeight: "216px" }}>
 
                 {
@@ -392,17 +461,17 @@ function App() {
             </div>
           </div>
         </span>
-        <span style={{display:"block",height:"1000px"}}>
-          <div className="ColorChanger" style={{marginTop:"177px"}} onClick={()=>{ColorPicker("일정관리")}} >일정관리</div>
-          <div className="ColorChanger" style={{marginTop:"8px"}} onClick={()=>{ColorPicker("텍스트 입력")}} onBlur={()=>{setOnPicker(false)}}>텍스트 입력</div>
-          <div className="ColorChanger" style={{marginTop:"8px"}} onClick={()=>{ColorPicker("+")}} onBlur={()=>{setOnPicker(false)}}>+</div>
-          <div className="ColorChanger" style={{marginTop:"8px"}} onClick={()=>{ColorPicker("할일")}}>할일</div>
-          <div className="ColorChanger" style={{marginTop:"8px"}} onClick={()=>{ColorPicker("전체삭제")}}>전체삭제</div>
-          {onPicker && <SketchPicker color={color} colors={colors} onChange={color => handleColorChange(color.hex)} /> }
+        <span style={{ display: "block", height: "1000px",  }}>
+          <div className="ColorChanger" style={{ marginTop: "200px" }} onClick={() => { ColorPicker("일정관리") }} >일정관리</div>
+          <div className="ColorChanger" style={{ marginTop: "8px" }} onClick={() => { ColorPicker("텍스트 입력") }} onBlur={() => { setOnPicker(false) }}>텍스트 입력</div>
+          <div className="ColorChanger" style={{ marginTop: "8px" }} onClick={() => { ColorPicker("+") }} onBlur={() => { setOnPicker(false) }}>+</div>
+          <div className="ColorChanger" style={{ marginTop: "8px" }} onClick={() => { ColorPicker("할일") }}>할일</div>
+          <div className="ColorChanger" style={{ marginTop: "8px" }} onClick={() => { ColorPicker("전체삭제") }}>전체삭제</div>
+          {onPicker && <SketchPicker color={color} colors={colors} onChange={color => handleColorChange(color.hex)} />}
         </span>
       </div>
-      
-      
+
+
     </div>
   );
 }
