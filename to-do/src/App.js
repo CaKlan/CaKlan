@@ -462,12 +462,19 @@ function App() {
           </div>
         </span>
         <span style={{ display: "block", height: "1000px",  }}>
-          <div className="ColorChanger" style={{ marginTop: "200px" }} onClick={() => { ColorPicker("일정관리") }} >일정관리</div>
-          <div className="ColorChanger" style={{ marginTop: "8px" }} onClick={() => { ColorPicker("텍스트 입력") }} onBlur={() => { setOnPicker(false) }}>텍스트 입력</div>
-          <div className="ColorChanger" style={{ marginTop: "8px" }} onClick={() => { ColorPicker("+") }} onBlur={() => { setOnPicker(false) }}>+</div>
-          <div className="ColorChanger" style={{ marginTop: "8px" }} onClick={() => { ColorPicker("할일") }}>할일</div>
-          <div className="ColorChanger" style={{ marginTop: "8px" }} onClick={() => { ColorPicker("전체삭제") }}>전체삭제</div>
-          {onPicker && <SketchPicker color={color} colors={colors} onChange={color => handleColorChange(color.hex)} />}
+          <button className="ColorChanger" style={{ marginTop: "200px" }} onClick={() => { ColorPicker("일정관리") }} >일정관리</button>
+          <br/>
+          <button className="ColorChanger" style={{ marginTop: "8px" }} onClick={() => { ColorPicker("텍스트 입력") }} >텍스트 입력</button>
+          <br/>
+          <button className="ColorChanger" style={{ marginTop: "8px" }} onClick={() => { ColorPicker("+") }} >+</button>
+          <br/>
+          <button className="ColorChanger" style={{ marginTop: "8px" }} onClick={() => { ColorPicker("할일") }}>할일</button>
+          <br/>
+          <button className="ColorChanger" style={{ marginTop: "8px" }} onClick={() => { ColorPicker("전체삭제") }}>전체삭제</button>
+          {onPicker && 
+            <div tabIndex="-1" onBlur={()=>{setOnPicker(false); ColorPicker(changeElement)}}>
+            <SketchPicker color={color} colors={colors} onChange={color => handleColorChange(color.hex)} />
+            </div>}
         </span>
       </div>
 
